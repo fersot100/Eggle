@@ -39,7 +39,7 @@ function parseApplication(expr, program){
 	// If the first character of the program is 
 	// a open parenthesis, it's a variable, not an application
 	if (program[0] != "(")
-		return {expr: expr, rest: program};
+		return {expr: expr, rest: program}
 
 	//If it isn't the beginning of an expression, it's an application
 
@@ -133,13 +133,28 @@ var specialForms = {
 	}
 }
 
-var topEnv = {
-	true: true,
-	false: false
+function TopEnv(){
+	this.true = true;
+	this.false = false;
+	['+', '-', '*', '/', '==', '<', '>'].forEach(function(op) {
+		this[op] = new Function("a, b", "return a" + op + " b;");
+	}.bind(this));
+	this.print = function (value) {
+		console.log(value);
+		return value;
+	};
 }
 
-['+', '-', '*', '/', '==', '<', '>'].forEach(function(op) {
-	topEnv[op] = new Function("a, b", "return a" + op + " b;");
-});
+function run() {
+	var env = new TopEnv();
+	//This line converts arguments into an array
+	var program = Array.prototype.slice.call(arguments, 0).join("\n");
+	return evaluate(parse(program), env);
+}
 
-console.log(parse("+(a, -(2,6))"));
+run("do(define(total, 0),",
+    "   define(count, 1),",
+    "   while(<(count, 11),",
+    "         do(define(total, +(total, count)),",
+    "            define(count, +(count, 1)))),",
+    "   print(total))");
