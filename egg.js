@@ -5,24 +5,24 @@ function parse(program){
 	return result.expr;
 }
 
-console.log(parse("+(a, 10)"))
+console.log(parse("+(a, 10)"));
 
 function parseExpression(program) {
 	program = skipSpace(program);
 	var match, expr;
-	//Matches any value in quotes
+	//Matches any value in quotes and returns the first parenthetical value
 	if(match = /^"(["]*)/.exec(program))
 		expr = {type: "value", value: match[1]};
-	//Matches any sequence of digits
+	//Matches any sequence of digits adn returns full string
 	else if(match = /^\d+\b/.exec(program))
 		expr = {type: "value", value: Number(match[0])};
-	//Matches words not in quotes
+	//Matches words not in quotes and returns full string
 	else if(match = /^[^\s(),"]+/.exec(program))
 		expr = {type: "word", name: match[0]};
 	//If no words match, there is a syntax error in the code
 	else
 		throw new SyntaxError("Unexpected Syntax: " + program);
-
+	console.log("Expression: " + JSON.stringify(expr));
 	return parseApply(expr, program.slice(match[0].length));
 }
 
@@ -39,6 +39,10 @@ function parseApply(expr, program){
 	//Move to the next non-whitespace
 	program = skipSpace(program);
 
+	// If the first character of the program is 
+	// a open parenthesis return the current expression 
+	// and the rest of the program
+	//This is the BASE CASE
 	if(program[0] != "(")
 		return {expr: expr, rest: program};
 
